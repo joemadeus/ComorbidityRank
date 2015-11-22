@@ -10,7 +10,7 @@ import java.net.URISyntaxException;
  * Performs a search in the Entrez PubMed database. This class roughly follows a Builder
  * pattern, meaning that all the "addX()" methods on this class return 'this', with the
  * values applied. Note that no error checking is performed on these setters. Calling
- * 'search()' performs a search with the current values and returns a state object that
+ * 'go()' performs a search with the current values and returns a state object that
  * lets you get the records and its PubMed WebEnv ID.
  */
 public class EntrezSearch extends EntrezClient {
@@ -62,10 +62,10 @@ public class EntrezSearch extends EntrezClient {
             throw new IOException("Could not build the URI for the query: " + urise.getMessage(), urise);
         }
 
-        LOGGER.debug("Searching with URI " + searchURI);
+        LOGGER.debug("Searching with URI '" + searchURI + "'");
 
         final PubMedSearchResult result = (PubMedSearchResult) XMLUtils.unmarshal(searchURI);
-        return new EntrezState<PubMedSearchResult>(result.getWebEnv, result.queryKey, result);
+        return new EntrezState<PubMedSearchResult>(result.webEnv, result.queryKey, result);
     }
 
     /**

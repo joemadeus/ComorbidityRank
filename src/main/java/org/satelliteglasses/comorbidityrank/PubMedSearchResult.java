@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class PubMedSearchResult {
 
     @XmlElement(name="WebEnv")
-    public String getWebEnv;
+    public String webEnv;
 
     @XmlElement(name="QueryKey")
     public int queryKey;

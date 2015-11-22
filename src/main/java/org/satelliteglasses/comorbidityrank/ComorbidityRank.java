@@ -11,13 +11,24 @@ public class ComorbidityRank {
                 new EntrezSearch(EntrezDatabase.PUBMED)
                     .addTerm("obesity", "mh", null)
                     .addTerm("diabetes", "mh", EntrezSearch.Operator.AND)
-                    .setMaxDateString("2012")
-                    .setMinDateString("2010")
+                    .addTerm("cancer", "mh", EntrezSearch.Operator.AND)
+                    .setMaxDateString("2000")
+                    .setMinDateString("2000")
                     .setMaxReturned(0)
-                    .setUseHistory(false)
+                    .setUseHistory(true)
                     .go();
 
-        System.out.print("Found " + searchState.mostRecentResponse.count + " records.");
+        System.out.println("Found " + searchState.mostRecentResponse.count + " records. WebEnv is '" + searchState.webEnv + "'");
+
+        final EntrezClient.EntrezState<PubMedFetchResults> fetchState =
+                new EntrezFetch(EntrezDatabase.PUBMED)
+                    .setWebEnv(searchState)
+                    .go();
+
+        System.out.println("Retrieved these articles:");
+        for (final PubMedFetchResults.PubMedFetchResult result : fetchState.mostRecentResponse) {
+            System.out.println(result.articleTitle);
+        }
     }
 
 }

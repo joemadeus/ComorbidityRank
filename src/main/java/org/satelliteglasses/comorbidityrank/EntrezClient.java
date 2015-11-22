@@ -27,7 +27,6 @@ public abstract class EntrezClient {
     private final EntrezDatabase database;
     private boolean useHistory = true;
     private EntrezState state = null;
-    private int queryKey = -1;
 
     EntrezClient(final EntrezDatabase db) {
         this.database = db;
@@ -44,25 +43,31 @@ public abstract class EntrezClient {
 
         if (useHistory) {
             builder.append("&useHistory=y");
-            if (this.state != null) builder.append("&WebEnv=").append(this.state.webEnv);
-            if (this.queryKey != -1) builder.append("&query_key=").append(this.queryKey);
+            if (this.state != null) {
+                builder.append("&WebEnv=").append(this.state.webEnv);
+                builder.append("&query_key=").append(this.state.queryKey);
+            }
         }
 
         return builder;
     }
 
     /**
-     * Set the WebEnv state from a previous operation. This has no effect if 'useHistory'
-     * is not set.
+     * Set the WebEnv state from a previous operation and set 'useHistory' to true if the
+     * given parameter is not null.
      */
     public EntrezClient setWebEnv(final EntrezState s) {
+        if (s != null) this.useHistory = true;
         this.state = s;
         return this;
     }
 
-    public EntrezClient setQueryKey(final int qK) {
-        this.queryKey = qK;
-        return this;
+    EntrezState getState() {
+        return this.state;
+    }
+
+    boolean isWebEnvSet() {
+        return this.state != null;
     }
 
     /**

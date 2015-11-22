@@ -1,53 +1,35 @@
 package org.satelliteglasses.comorbidityrank;
 
-import org.w3c.dom.Document;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathException;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.bind.util.JAXBResult;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;
 import java.net.URI;
 
 public final class XMLUtils {
 
-    private static final XPath X_PATH = XPathFactory.newInstance().newXPath();
+    static final Transformer PUBMED_FETCH_TRANSFORMER;
+
+    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
+    private static final StreamSource PUBMED_FETCH_TEMPLATE_SOURCE = new StreamSource("src/main/resources/pubmed_fetch_results.xslt");
+
     private static final JAXBContext JAXB_CONTEXT;
 
     static {
         try {
             JAXB_CONTEXT = JAXBContext.newInstance(
-                    PubMedFetchResult.class,
+                    PubMedFetchResults.class,
                     PubMedSearchResult.class);
+
+            PUBMED_FETCH_TRANSFORMER = TRANSFORMER_FACTORY.newTemplates(PUBMED_FETCH_TEMPLATE_SOURCE).newTransformer();
+
         } catch (final Throwable thr) {
-            // Shut it down. shut it down now.
             throw new Error("Could not instantiate the XML utilities: " + thr.getMessage(), thr);
-        }
-    }
-
-    public static Document getDocument(final URI uri) throws IOException {
-        try {
-            return DocumentBuilderFactory
-                    .newInstance()
-                    .newDocumentBuilder()
-                    .parse(uri.toString());
-
-        } catch (final Exception e) {
-            throw new IOException(
-                    "Could not create a document from URI " + uri.toString() + ": " + e.getMessage(), e);
-        }
-    }
-
-    public static XPathExpression getXPathExpression(final String expression) {
-        try {
-            return X_PATH.compile(expression);
-        } catch (final XPathException xpe) {
-            throw new IllegalArgumentException(
-                    "Could not create an XPath expression for '" + expression + "': " + xpe.getMessage(), xpe);
         }
     }
 
@@ -56,6 +38,21 @@ public final class XMLUtils {
             final Unmarshaller unmarshaller = JAXB_CONTEXT.createUnmarshaller();
             return unmarshaller.unmarshal(uri.toURL());
 
+        } catch (final JAXBException jaxbe) {
+            throw new IOException(
+                    "Could not create the JAXB unmarshaller or unmarshal data from '" + uri.toString() + "': " + jaxbe.getMessage(), jaxbe);
+        }
+    }
+
+    public static Object unmarshal(final URI uri, final Transformer transformer) throws IOException {
+        try {
+            JAXBResult result = new JAXBResult(JAXB_CONTEXT);
+            transformer.transform(new StreamSource(uri.toString()), result);
+            return result.getResult();
+
+        } catch (final TransformerException te) {
+            throw new IOException(
+                    "Could not transform the contents of '" + uri.toString() + "': " + te.getMessage(), te);
         } catch (final JAXBException jaxbe) {
             throw new IOException(
                     "Could not create the JAXB unmarshaller or unmarshal data from '" + uri.toString() + "': " + jaxbe.getMessage(), jaxbe);
