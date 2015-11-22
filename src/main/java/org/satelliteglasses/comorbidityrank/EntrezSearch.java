@@ -7,15 +7,17 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
- * Performs a search in the Entrez PubMed database. This class roughly follows
- * a Builder pattern, meaning that all the "addX()" methods on this class return
- * 'this', with the values applied. Calling 'search()' performs a search with the
- * current values and returns a state object that lets you get the records and
- * its PubMed WebEnv ID.
+ * Performs a search in the Entrez PubMed database. This class roughly follows a Builder
+ * pattern, meaning that all the "addX()" methods on this class return 'this', with the
+ * values applied. Note that no error checking is performed on these setters. Calling
+ * 'search()' performs a search with the current values and returns a state object that
+ * lets you get the records and its PubMed WebEnv ID.
  */
-public class EntrezSearch extends EntrezClient<PubMedSearchResult> {
+public class EntrezSearch extends EntrezClient {
 
     private static final Logger LOGGER = Logger.getLogger(EntrezSearch.class);
+
+    private static final String RESOURCE = "/esearch.fcgi";
 
     public enum Operator {
         AND,
@@ -26,13 +28,14 @@ public class EntrezSearch extends EntrezClient<PubMedSearchResult> {
     private StringBuilder queryTerm = new StringBuilder();
     private String minDateString = null;
     private String maxDateString = null;
+    private int maxReturnedCount = -1;
 
     public EntrezSearch(final EntrezDatabase db) {
         super(db);
     }
 
     @Override
-    public EntrezState go() throws IOException {
+    public EntrezState<PubMedSearchResult> go() throws IOException {
         if (this.queryTerm.length() == 0) {
             throw new IllegalStateException("A query term must be set on the EntrezSearch before calling go()");
         }
@@ -40,8 +43,9 @@ public class EntrezSearch extends EntrezClient<PubMedSearchResult> {
         final StringBuilder queryBuilder = this.getBaseQuery();
 
         queryBuilder.append("&").append(this.queryTerm.toString().replace(" ", "+"));
-        if (this.minDateString != null) queryBuilder.append("&").append(this.minDateString);
-        if (this.maxDateString != null) queryBuilder.append("&").append(this.maxDateString);
+        if (this.minDateString != null) queryBuilder.append("&").append("mindate=").append(this.minDateString);
+        if (this.maxDateString != null) queryBuilder.append("&").append("maxdate=").append(this.maxDateString);
+        if (this.maxReturnedCount >= 0) queryBuilder.append("&").append("retmax=").append(this.maxReturnedCount);
 
         final URI searchURI;
         try {
@@ -50,7 +54,7 @@ public class EntrezSearch extends EntrezClient<PubMedSearchResult> {
                     null,
                     ENTREZ_SERVER,
                     80,
-                    ENTREZ_BASE_PATH,
+                    ENTREZ_BASE_PATH + RESOURCE,
                     queryBuilder.toString(),
                     null);
 
@@ -61,7 +65,7 @@ public class EntrezSearch extends EntrezClient<PubMedSearchResult> {
         LOGGER.debug("Searching with URI " + searchURI);
 
         final PubMedSearchResult result = (PubMedSearchResult) XMLUtils.unmarshal(searchURI);
-        return new EntrezState(result.getWebEnv, result.queryKey, result);
+        return new EntrezState<PubMedSearchResult>(result.getWebEnv, result.queryKey, result);
     }
 
     /**
@@ -70,15 +74,21 @@ public class EntrezSearch extends EntrezClient<PubMedSearchResult> {
      * previous calls to addTerm().
      */
     public EntrezSearch addTerm(final String term, final String field, final Operator op) {
-        if (term == null || term.isEmpty()) throw new IllegalArgumentException("The 'term' parameter must have a value");
-        this.queryTerm.append(' ');
+        if (term == null || term.trim().isEmpty()) throw new IllegalArgumentException("The 'term' parameter must have a value");
 
-        if (this.queryTerm.length() == 0) {
+        final String trimTerm = term.trim();
+
+        if (this.queryTerm.length() != 0) {
             if (op == null) throw new IllegalArgumentException("Operator must not be null if previous terms were set");
-            this.queryTerm.append(op.name());
+            this.queryTerm.append(' ');
+            this.queryTerm.append(op.name()).append(' ');
+        } else {
+            // Done here, rather than in initialization, so we can detect when we've called
+            // this method at least once
+            this.queryTerm.append("term=");
         }
 
-        this.queryTerm.append(term);
+        this.queryTerm.append(trimTerm);
         if (field != null && ! field.isEmpty()) this.queryTerm.append("[" + field + "]");
 
         return this;
@@ -101,6 +111,11 @@ public class EntrezSearch extends EntrezClient<PubMedSearchResult> {
      */
     public EntrezSearch setMaxDateString(final String mDS) {
         this.maxDateString = mDS;
+        return this;
+    }
+
+    public EntrezSearch setMaxReturned(final int count) {
+        this.maxReturnedCount = count;
         return this;
     }
 }

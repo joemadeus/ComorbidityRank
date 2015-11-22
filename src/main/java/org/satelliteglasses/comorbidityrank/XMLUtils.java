@@ -20,7 +20,9 @@ public final class XMLUtils {
 
     static {
         try {
-            JAXB_CONTEXT = JAXBContext.newInstance("org.satelliteglasses.comorbidityrank");
+            JAXB_CONTEXT = JAXBContext.newInstance(
+                    PubMedFetchResult.class,
+                    PubMedSearchResult.class);
         } catch (final Throwable thr) {
             // Shut it down. shut it down now.
             throw new Error("Could not instantiate the XML utilities: " + thr.getMessage(), thr);

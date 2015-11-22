@@ -1,19 +1,18 @@
 package org.satelliteglasses.comorbidityrank;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * A base class for utilities that fetch data from Entrez/PubMed. Generic type
  * T is the class of records returned by the subclass' operation.
  */
-public abstract class EntrezClient<T> {
+public abstract class EntrezClient {
 
     static final String ENTREZ_PROTO = "http";
     static final String ENTREZ_SERVER = "eutils.ncbi.nlm.nih.gov";
     static final String ENTREZ_BASE_PATH = "/entrez/eutils";
 
-    public class EntrezState {
+    public class EntrezState<T> {
         public final String webEnv;
         public final int queryKey;
         public final T mostRecentResponse;
@@ -39,8 +38,8 @@ public abstract class EntrezClient<T> {
     StringBuilder getBaseQuery() {
         final StringBuilder builder = new StringBuilder();
 
-        // This must be first -- append a question mark to start the query string
-        builder.append("?db=").append(this.database.getQueryValue());
+        // This must be first -- no question mark appended because java.net.URI does that
+        builder.append("db=").append(this.database.getQueryValue());
         builder.append("&retmode=xml");
 
         if (useHistory) {
