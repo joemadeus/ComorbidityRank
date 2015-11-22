@@ -13,17 +13,19 @@ import java.net.URI;
 
 public final class XMLUtils {
 
+    static final StreamSource PUBMED_FETCH_TEMPLATE_SOURCE = new StreamSource("src/main/resources/pubmed_fetch_results.xslt");
     static final Transformer PUBMED_FETCH_TRANSFORMER;
+    static final JAXBContext JAXB_CONTEXT;
 
     private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
-    private static final StreamSource PUBMED_FETCH_TEMPLATE_SOURCE = new StreamSource("src/main/resources/pubmed_fetch_results.xslt");
-
-    private static final JAXBContext JAXB_CONTEXT;
 
     static {
         try {
             JAXB_CONTEXT = JAXBContext.newInstance(
                     PubMedFetchResults.class,
+                    PubMedFetchResults.PubMedFetchResult.class,
+                    PubMedFetchResults.MeshDescriptor.class,
+                    PubMedFetchResults.Qualifier.class,
                     PubMedSearchResult.class);
 
             PUBMED_FETCH_TRANSFORMER = TRANSFORMER_FACTORY.newTemplates(PUBMED_FETCH_TEMPLATE_SOURCE).newTransformer();

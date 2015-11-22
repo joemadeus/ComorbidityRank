@@ -28,6 +28,12 @@ public class ComorbidityRank {
         System.out.println("Retrieved these articles:");
         for (final PubMedFetchResults.PubMedFetchResult result : fetchState.mostRecentResponse) {
             System.out.println(result.articleTitle);
+            for (final PubMedFetchResults.MeshDescriptor meshDescriptor : result.meshHeadingList.meshDescriptors) {
+                System.out.print("     ");
+                System.out.print(meshDescriptor.descriptorName);
+                System.out.print(", ");
+            }
+            System.out.println();
         }
     }
 
