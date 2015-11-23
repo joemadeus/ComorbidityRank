@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * A single PubMed record. This class is specific to the format returned by
- * Entrez since it uses JAXB binding annotations.
+ * pre-processing Entrez data using XSLT. (@see pubmet_fetch_results.xslt)
  */
 @XmlRootElement(name="PubmedArticleSet")
 public class PubMedFetchResults implements Iterable<PubMedFetchResults.PubMedFetchResult> {
@@ -53,11 +53,11 @@ public class PubMedFetchResults implements Iterable<PubMedFetchResults.PubMedFet
     @XmlRootElement(name="MeshHeadingList")
     public static class MeshHeadingList {
         @XmlElement(name="MeshHeading")
-        public List<MeshDescriptor> meshDescriptors;
+        public List<PubMedMeshDescriptor> meshDescriptors;
     }
 
     @XmlRootElement(name="MeshHeading")
-    public static class MeshDescriptor {
+    public static class PubMedMeshDescriptor {
         @XmlElement(name="DescriptorName")
         public String descriptorName;
 

@@ -15,9 +15,9 @@ public class MarshalTest {
         result.pmID = "00000011";
         result.publicationYear = 2015;
         result.meshHeadingList = new PubMedFetchResults.MeshHeadingList();
-        result.meshHeadingList.meshDescriptors = new ArrayList<PubMedFetchResults.MeshDescriptor>(2);
+        result.meshHeadingList.meshDescriptors = new ArrayList<PubMedFetchResults.PubMedMeshDescriptor>(2);
 
-        final PubMedFetchResults.MeshDescriptor meshOne = new PubMedFetchResults.MeshDescriptor();
+        final PubMedFetchResults.PubMedMeshDescriptor meshOne = new PubMedFetchResults.PubMedMeshDescriptor();
         meshOne.conceptID = "000111";
         meshOne.descriptorName = "MeshOne";
         meshOne.isMajorTopic = false;
@@ -37,7 +37,7 @@ public class MarshalTest {
         meshOne.qualifiers.qualifierList.add(qualifierA);
         meshOne.qualifiers.qualifierList.add(qualifierB);
 
-        final PubMedFetchResults.MeshDescriptor meshTwo = new PubMedFetchResults.MeshDescriptor();
+        final PubMedFetchResults.PubMedMeshDescriptor meshTwo = new PubMedFetchResults.PubMedMeshDescriptor();
         meshTwo.conceptID = "000222";
         meshTwo.descriptorName = "MeshTwo";
         meshTwo.isMajorTopic = true;
