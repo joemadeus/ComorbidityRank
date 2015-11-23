@@ -27,6 +27,7 @@ public abstract class EntrezClient {
     private final EntrezDatabase database;
     private boolean useHistory = true;
     private EntrezState state = null;
+    private int queryKey = -1;
 
     EntrezClient(final EntrezDatabase db) {
         this.database = db;
@@ -45,7 +46,9 @@ public abstract class EntrezClient {
             builder.append("&useHistory=y");
             if (this.state != null) {
                 builder.append("&WebEnv=").append(this.state.webEnv);
-                builder.append("&query_key=").append(this.state.queryKey);
+                if (this.queryKey != -1) {
+                    builder.append("&query_key=").append(this.state.queryKey);
+                }
             }
         }
 
@@ -78,4 +81,8 @@ public abstract class EntrezClient {
         return this;
     }
 
+    public EntrezClient setQueryKey(final int qK) {
+        this.queryKey = qK;
+        return this;
+    }
 }
