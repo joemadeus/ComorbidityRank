@@ -41,16 +41,10 @@ public abstract class EntrezClient {
         // This must be first -- no question mark appended because java.net.URI does that
         builder.append("db=").append(this.database.getQueryValue());
         builder.append("&retmode=xml");
+        builder.append("&useHistory=").append(this.useHistory ? "y" : "n");
 
-        if (useHistory) {
-            builder.append("&useHistory=y");
-            if (this.state != null) {
-                builder.append("&WebEnv=").append(this.state.webEnv);
-                if (this.queryKey != -1) {
-                    builder.append("&query_key=").append(this.state.queryKey);
-                }
-            }
-        }
+        if (this.state != null) builder.append("&WebEnv=").append(this.state.webEnv);
+        if (this.queryKey != -1) builder.append("&query_key=").append(this.state.queryKey);
 
         return builder;
     }
@@ -60,7 +54,6 @@ public abstract class EntrezClient {
      * given parameter is not null.
      */
     public EntrezClient setWebEnv(final EntrezState s) {
-        if (s != null) this.useHistory = true;
         this.state = s;
         return this;
     }
