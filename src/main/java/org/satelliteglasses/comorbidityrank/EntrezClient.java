@@ -28,6 +28,7 @@ public abstract class EntrezClient {
     private boolean useHistory = true;
     private EntrezState state = null;
     private int queryKey = -1;
+    private String returnType = "xml";
 
     EntrezClient(final EntrezDatabase db) {
         this.database = db;
@@ -40,7 +41,7 @@ public abstract class EntrezClient {
 
         // This must be first -- no question mark appended because java.net.URI does that
         builder.append("db=").append(this.database.getQueryValue());
-        builder.append("&retmode=xml");
+        builder.append("&retmode=").append(this.returnType);
         builder.append("&useHistory=").append(this.useHistory ? "y" : "n");
 
         if (this.state != null) builder.append("&WebEnv=").append(this.state.webEnv);
@@ -64,6 +65,11 @@ public abstract class EntrezClient {
 
     boolean isWebEnvSet() {
         return this.state != null;
+    }
+
+    public EntrezClient setReturnType(final String type) {
+        this.returnType = type;
+        return this;
     }
 
     /**

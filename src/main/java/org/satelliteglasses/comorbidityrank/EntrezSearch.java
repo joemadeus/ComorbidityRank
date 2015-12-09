@@ -74,6 +74,10 @@ public class EntrezSearch extends EntrezClient {
      * previous calls to addTerm().
      */
     public EntrezSearch addTerm(final String term, final String field, final Operator op) {
+
+        // TODO: This should really just add a term-field-op tuple to a list for later
+        // TODO: processing, rather than doing it all here
+
         if (term == null || term.trim().isEmpty()) throw new IllegalArgumentException("The 'term' parameter must have a value");
 
         final String trimTerm = term.trim();

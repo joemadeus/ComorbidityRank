@@ -11,9 +11,14 @@
     <xsl:template match="PubmedArticle">
         <PubmedArticle>
             <PMID><xsl:value-of select="MedlineCitation/PMID" /></PMID>
-            <ArticleTitle><xsl:value-of select="MedlineCitation/Article/ArticleTitle" /></ArticleTitle>
             <JournalTitle><xsl:value-of select="MedlineCitation/Article/Journal/Title" /></JournalTitle>
             <PublicationYear><xsl:value-of select="MedlineCitation/Article/Journal/JournalIssue/PubDate/Year" /></PublicationYear>
+            <ArticleTitle><xsl:value-of select="MedlineCitation/Article/ArticleTitle" /></ArticleTitle>
+            <ArticleAbstract>
+                <xsl:for-each select="MedlineCitation/Article/Abstract/AbstractText">
+                    <xsl:value-of select="." />
+                </xsl:for-each>
+            </ArticleAbstract>
             <MeshHeadingList>
                 <xsl:apply-templates select="MedlineCitation/MeshHeadingList" />
             </MeshHeadingList>

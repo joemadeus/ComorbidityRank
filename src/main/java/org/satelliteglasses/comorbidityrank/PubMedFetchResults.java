@@ -40,6 +40,9 @@ public class PubMedFetchResults implements Iterable<PubMedFetchResults.PubMedFet
         @XmlElement(name="ArticleTitle")
         public String articleTitle;
 
+        @XmlElement(name="ArticleAbstract")
+        public String articleAbstract;
+
         @XmlElement(name="JournalTitle")
         public String journalTitle;
 
